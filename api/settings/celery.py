@@ -14,8 +14,8 @@ app.autodiscover_tasks(["tasks.bg_tasks"])
 
 
 app.conf.beat_schedule = {
-    "test": {
+    "notify_user": {
         "task": "tasks.bg_tasks.notify_user",
-        "schedule": timedelta(seconds=10),
+        "schedule": timedelta(seconds=60),
     },
 }

@@ -91,6 +91,27 @@ services:
     networks:
       - task
 
+  bot:
+    build:
+      context: .
+      dockerfile: ./bot/Dockerfile
+    container_name: bot
+    hostname: bot
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PYTHONDONTWRITEBYTECODE=1
+      - PYTHONUNBUFFERED=1
+    ports:
+      - "8001:8001"
+    entrypoint: python3 __main__.py
+    volumes:
+      - ./bot/:/opt/app
+    networks:
+      - task
+
+
 networks:
   task:
     driver: bridge

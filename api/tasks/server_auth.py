@@ -21,7 +21,7 @@ class ServerAuthentication(authentication.BaseAuthentication):
         ):
             return user, None
 
-        if not auth or auth.lower() != settings.SECRET_KEY:
+        if not auth or auth.lower() != settings.API_KEY:
             raise exceptions.AuthenticationFailed(
                 "Invalid token header. No credentials provided."
             )
