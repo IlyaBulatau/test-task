@@ -20,6 +20,20 @@ services:
     networks:
       - task
 
+  redis:
+    image: redis:alpine
+    container_name: redis
+    restart: unless-stopped
+    env_file:
+      - .env
+    ports:
+      - "6380:${REDIS_PORT:-6379}"
+    command: redis-server
+    volumes:
+      - redis_data:/data
+    networks:
+      - task
+
   api:
     build:
       context: .
@@ -45,9 +59,42 @@ services:
     networks:
       - task
 
+  celery:
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
+    container_name: celery
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./api/:/opt/app
+    entrypoint: bash -c "celery -A settings worker -l INFO"
+    depends_on:
+      - api
+    networks:
+      - task
+  
+  scheduler:
+    build:
+      context: .
+      dockerfile: ./api/Dockerfile
+    container_name: scheduler
+    restart: unless-stopped
+    env_file:
+      - .env
+    volumes:
+      - ./api/:/opt/app
+    entrypoint: bash -c "celery -A settings beat -l INFO --scheduler django_celery_beat.schedulers:DatabaseScheduler"
+    depends_on:
+      - celery
+    networks:
+      - task
+
 networks:
   task:
     driver: bridge
 
 volumes:
   postgres_data:
+  redis_data:
